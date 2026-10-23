@@ -1,0 +1,127 @@
+=======================================================================
+DASBOR PREDIKSI PENJUALAN TOKO SABRINA
+Versi SQLite (zero-config, tanpa perlu setup MySQL/phpMyAdmin)
+=======================================================================
+
+RINGKASAN
+-----------------------------------------------------------------------
+Aplikasi web (Progressive Web App) untuk toko pakan ternak: mencatat
+transaksi penjualan dan memprediksi kebutuhan pakan ke depan memakai
+model GLM dan XGBoost. Database memakai SQLite — satu file
+portable (database.db), tidak perlu instalasi/konfigurasi database
+server terpisah.
+
+Perhitungan model resmi (agregat mingguan seluruh produk, fitur lag
+& rolling mean, split data latih/uji 80:20 secara kronologis) di
+python/latih_model.py PERSIS mengikuti metodologi Bab III/IV skripsi,
+sehingga angka MAE/RMSE/MAPE yang tampil di menu Latih Model & Prediksi
+selalu konsisten dengan angka yang dilaporkan pada skripsi.
+
+
+KEBUTUHAN SERVER
+-----------------------------------------------------------------------
+- PHP 8.0+ dengan ekstensi: pdo_sqlite, zip, SimpleXML
+- Python 3.9+ dengan pustaka: pandas, statsmodels, xgboost, scikit-learn
+- Akses shell_exec() aktif di PHP (dipakai untuk menjalankan skrip
+  Python dari menu Latih Model & Prediksi)
+
+
+LANGKAH INSTALASI
+-----------------------------------------------------------------------
+1. Taruh folder ini di dalam htdocs XAMPP, contoh:
+       C:\xampp\htdocs\toko_sabrina\
+
+2. Pasang pustaka Python:
+       pip install pandas statsmodels xgboost scikit-learn
+
+3. Perintah Python terdeteksi otomatis oleh sistem. Jika deteksi
+   otomatis salah pilih, buat file baru bernama python/python_bin.txt
+   berisi SATU BARIS path lengkap ke python.exe yang benar, misalnya:
+       C:\Users\NamaAnda\AppData\Local\Programs\Python\Python312\python.exe
+
+4. Tidak perlu membuat database secara manual. Buka aplikasi lewat
+   browser:
+       http://localhost/toko_sabrina/login.php
+   Saat pertama kali diakses, file database.db akan dibuat otomatis
+   beserta 2 akun awal (2 peran berbeda, lihat bagian "AKUN & PERAN"
+   di bawah):
+       1) nama pengguna : peneliti   | kata sandi : peneliti2026
+       2) nama pengguna : pemilik    | kata sandi : sabrina2026
+
+5. Selesai — login lalu mulai gunakan aplikasinya.
+
+Catatan: tidak perlu menyalakan MySQL di XAMPP sama sekali — cukup
+modul Apache saja yang aktif.
+
+
+AKUN & PERAN (PENELITI vs PEMILIK)
+-----------------------------------------------------------------------
+Sistem ini memakai 2 peran login dengan hak akses menu yang berbeda:
+
+1) PENELITI  (nama pengguna: peneliti | kata sandi: peneliti2026)
+   Tugas: mengunggah dataset, menjalankan preprocessing & feature
+   engineering, melatih model GLM dan XGBoost, mengevaluasi performa
+   model (MAE/RMSE/MAPE), serta menganalisis & menyajikan hasil
+   penelitian.
+   Menu yang bisa diakses: Beranda, Impor Data, Kelola Data,
+   Latih Ulang Model, Hasil Prediksi (bisa menjalankan prediksi baru).
+
+2) PEMILIK   (nama pengguna: pemilik | kata sandi: sabrina2026)
+   Tugas: membaca tabel hasil prediksi penjualan pakan ternak (kg/
+   minggu) sebagai acuan perencanaan & pengadaan stok, serta mencatat
+   transaksi penjualan sehari-hari di toko.
+   Menu yang bisa diakses: Beranda, Hasil Prediksi (mode baca saja —
+   tanpa tombol "Jalankan Prediksi"), Input Transaksi, Kelola Produk,
+   Riwayat Transaksi, Laporan.
+
+Kedua akun ini SELALU dibuat otomatis (baik pada instalasi baru maupun
+saat database lama dibuka lagi setelah pembaruan ini), jadi tidak perlu
+dikonfigurasi manual. Setelah login, kata sandi bisa diganti sendiri
+lewat menu "🔑 Ganti Sandi" di sidebar (atau klik nama akun di pojok
+kanan atas) — sangat disarankan diganti setelah sistem terbukti
+berjalan lancar, supaya tidak memakai kata sandi bawaan selamanya.
+
+
+MENGIMPOR DATA TRANSAKSI HISTORIS
+-----------------------------------------------------------------------
+Login sebagai PENELITI, lalu buka menu "Impor Data", dan unggah file
+Excel (.xlsx). Sistem otomatis mendeteksi format kolom template bawaan
+maupun format rekap toko. Produk yang belum terdaftar akan otomatis
+dibuat saat impor.
+
+
+MELATIH ULANG MODEL & MEMVERIFIKASI ANGKA MAPE
+-----------------------------------------------------------------------
+Login sebagai PENELITI, lalu buka menu "Latih Ulang" untuk melatih
+ulang model GLM & XGBoost memakai seluruh data transaksi terkini.
+Angka MAE/RMSE/MAPE resmi (yang juga dipakai pada skripsi Bab IV/V)
+akan diperbarui otomatis di tabel Riwayat Evaluasi Model setiap kali
+proses ini dijalankan.
+
+PENTING: angka MAE/RMSE/MAPE final pada skripsi ini dihasilkan dengan
+menjalankan metodologi yang PERSIS SAMA seperti python/latih_model.py
+terhadap database.db yang disertakan. Disarankan menjalankan sekali
+menu "Latih Ulang" di komputer Anda sendiri (yang sudah terpasang
+pustaka xgboost & statsmodels asli) sebelum sidang, untuk memastikan
+angka yang tercetak di skripsi 100% sama dengan yang tampil di
+aplikasi pada saat itu.
+
+
+MEMBERSIHKAN DATA UJI COBA
+-----------------------------------------------------------------------
+Buka menu Impor → "Kelola / hapus data hasil uji coba". Alternatif
+tercepat: hapus langsung file database.db dari folder aplikasi —
+database baru yang kosong (lengkap dengan akun login) akan otomatis
+dibuat lagi saat aplikasi dibuka ulang lewat browser.
+
+
+STRUKTUR FOLDER SINGKAT
+-----------------------------------------------------------------------
+halaman/    Tampilan setiap menu (beranda, prediksi, laporan, dst.)
+php/        Proses backend (simpan transaksi, login, impor, dst.)
+python/     Skrip pelatihan model & prediksi (olah_data.py,
+            latih_model.py, prediksi.py)
+config/     Koneksi database & pengaturan aplikasi
+models/     Model terlatih (.pkl) — dibuat/diperbarui otomatis
+assets/     CSS, JS, ikon, dan berkas PWA
+database.db Basis data SQLite (dibuat otomatis saat pertama diakses)
