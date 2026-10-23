@@ -3,10 +3,10 @@
 Aplikasi web (Progressive Web App) untuk mencatat transaksi penjualan toko pakan ternak
 dan memprediksi kebutuhan pakan mingguan menggunakan model **GLM** dan **XGBoost**.
 
-- **Nama:** (Elisa D Lumbantoruan)
-- **NIM:** (22040128)
+- **Nama:** Elisa D Lumbantoruan
+- **NIM:** 22040128
 - **Program Studi:** Teknik Informatika
-- **Judul Skripsi:** (ANALISIS PERBANDINGAN GENERALIZED LINEAR MODEL DAN XGBOOST UNTUK PREDIKSI TREN PENJUALAN PAKAN TERNAK PADA TOKO  SABRINA DI HUMBANG HASUNDUTAN )
+- **Judul Skripsi:** ANALISIS PERBANDINGAN GENERALIZED LINEAR MODEL DAN XGBOOST UNTUK PREDIKSI TREN PENJUALAN PAKAN TERNAK PADA TOKO  SABRINA DI HUMBANG HASUNDUTAN 
 
 ## Fitur Utama
 - Login dengan 2 peran: **Peneliti** dan **Pemilik**
